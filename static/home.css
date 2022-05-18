@@ -1,0 +1,68 @@
+h1{
+    color: white;
+}
+
+h2{
+    color: white;
+}
+
+h4 {
+    color: white;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td {
+    padding: 10px;
+    border: 2px solid #3e6cb1;
+    background-color: white;
+}
+
+td:nth-of-type(5n + 0) {
+    border-right-color: #73454d;
+}
+
+.color5 td{
+    border-bottom-color: #73454d;
+}
+
+body {
+    background-color: black;
+}
+
+.base {
+    background-color: grey;
+}
+
+.terrain {
+    background-color: black;
+}
+
+.soldier{
+    padding: 0;
+}
+
+/* .P1{
+    background-color:aqua;
+} */
+
+img {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    padding: 0;
+}
+
+.column {
+    float: left;
+  }
+  
+.left {
+    width: 25%;
+  }
+  
+.right {
+    width: 75%;
+  }
