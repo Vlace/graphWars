@@ -3,16 +3,16 @@
 //the board is referencing the board variable which keeps track of the cells 'memory'  [[0,1, 'empty'],[0,2, 'base']]
 //the map is in reference to what the user sees on the front end.
 //bcoord refers to array/board coordinate [y,x] mcoord refers to map coordinate 'y - x'
-const HEIGHT = 50
-const WIDTH = 50
+const HEIGHT = 25
+const WIDTH = 25
 const board = [];
-const p1soldierArray = [];
-const p2soldierArray = [];
+let p1soldierArray = [];
+let p2soldierArray = [];
 const terrainRes = [];
 const p1resourceBCoords = [];
 const p2resourceBCoords =[];
 let playerTurn = 'p1';
-let turnPoints = 10;
+let turnPoints = 20;
 let totalPoints = 10;
 let round = 0;
 let p1Resources = 0;
@@ -83,7 +83,7 @@ function createStyle(settingVar, bCoord){
 
 //Finding cell easily in board, handy function throughout app, reduces some tedious code.
 function findIndex(bCoord){
-    return bCoord[0]*50 + bCoord[1];
+    return bCoord[0]*HEIGHT + bCoord[1];
 }
 
 
@@ -168,7 +168,7 @@ function makeHtmlBase(player) {
         return base;
     }
     else{
-        let y = 49;
+        let y = HEIGHT - 1;
         let bottom = [[y,x+1],[y,x+2],[y,x+3],[y,x+4]];
         let side = [[y-1,x],[y-2,x],[y-1,x+5],[y-2,x+5]];
         let corner = [[y,x],[y,x+5],[y-3,x],[y-3,x+5]];
@@ -237,17 +237,17 @@ function drawBaseHtml(base, base2) {
 // TO IMPLIMENT: checks to make sure paths still exist between bases, and bases aren't blocked && new types of terrain, mountain, river, forest
 function createTerrain(){
     // terrain quantity
-    const terrainQuantity = (randomNum(6)+5)*9;
+    const terrainQuantity = (randomNum(2)+2)*2;
     //terrain coordinates for CSS
     const terrainSet = [];
     
         for(let i=0; i<=terrainQuantity; i++){
             //indiv terrain size
-            const terrainY = randomNum(3)+2;
-            const terrainX = randomNum(10);
+            const terrainY = randomNum(2)+1;
+            const terrainX = randomNum(HEIGHT/5);
             //terrain origin point
-            const originY = randomNum(40) + 1;
-            const originX = randomNum(40) + 1;
+            const originY = randomNum(HEIGHT-10) + 1;
+            const originX = randomNum(WIDTH - 10) + 1;
                 
                 
             for(let ycoord = 0; ycoord <= terrainY; ycoord++){
@@ -262,7 +262,7 @@ function createTerrain(){
 
 //checks to see if coordinates are valid before adding new class/terrain/soldiers. 
 function validCheck(coordinate, type){
-    const indexFinder = coordinate[0]*50 + coordinate[1]
+    const indexFinder = coordinate[0]*HEIGHT + coordinate[1]
     if (type === "terrain"){
         for(let i = 1; i <= 2; i++){
             if(
@@ -298,25 +298,25 @@ function createSoldier(evt,bCoord){
     let bool = 0;
     if (board[findIndex(bCoord)][2] === 'empty'){
         if (p1SoldierCount === 0 && playerTurn === 'p1'){
-            if (validSoldier(bCoord, 'soldierStart')){
+            if (validateSoldier(bCoord, 'soldierStart')){
             bool = 1;
             p1SoldierCount ++;
             }
         }
         if (p1SoldierCount > 0 && playerTurn === 'p1' && bool === 0){
-            if (validSoldier(bCoord, 'soldierAdd')){
+            if (validateSoldier(bCoord, 'soldierAdd')){
             bool = 1;
             p1SoldierCount ++;
             }
         }
         if (p2SoldierCount === 0 && playerTurn === 'p2'){
-            if (validSoldier(bCoord, 'soldierStart')){
+            if (validateSoldier(bCoord, 'soldierStart')){
             bool = 2;
             p2SoldierCount ++;
             }
         }
         if (p2SoldierCount > 0 && playerTurn === 'p2' && bool === 0){
-            if (validSoldier(bCoord, 'soldierAdd')){
+            if (validateSoldier(bCoord, 'soldierAdd')){
             bool = 2;
             p2SoldierCount ++;
             }
@@ -325,8 +325,8 @@ function createSoldier(evt,bCoord){
         if (bool === 1 || bool == 2){
         updateMap(bCoord, `soldier ${playerTurn}`)
         //gathering resources
-        if (validSoldier(bCoord, 'resourceGathering')){}
-        if (validSoldier(bCoord, 'checkSoldier', 'surround')){}
+        if (returnNumber(bCoord, 'surround', 'terrain', 'array')){}
+        if (validateSoldier(bCoord, 'checkSoldier', 'surround')){}
         updateBoard(bCoord, `soldier ${playerTurn}`)
         turnPoints --;
         const img = $("<img>");
@@ -340,13 +340,10 @@ function createSoldier(evt,bCoord){
 }
 
 //TO REVISIT. The terrain creation might be moved to use this function. Reducing redundancy
-function coordCheck(coordinate, checkType, checkStyle){
+function coordCheck(coordinate, checkStyle){
     
     let x = 1;
     let i = 1;
-    if (checkType === 'soldierStart' || 'soldierAdd' || 'resourceGathering'){
-        i = 1;
-    }
 
     const downi= [coordinate[0] + i, coordinate[1]];
     const upi=[coordinate[0] - i, coordinate[1]];
@@ -378,30 +375,54 @@ function coordCheck(coordinate, checkType, checkStyle){
 
 }
 
-function validSoldier(coord, checkType){
-    let bool = 0;
-    if (checkType === 'soldierStart'){
+//return the number of times something is configured next to other coordinates.
+function returnNumber(bCoord, checkStyle, checkType, desireReturn){
+    coordChecker = coordCheck(bCoord, checkStyle);
+    counter = 0;
+        for (coords of coordChecker){
+            index = findIndex(coords);
+            if (desireReturn === 'counter'){
+                if (board[index][2] === checkType){
+                    counter ++;
+                }
+            }
+            if (desireReturn === 'array'){
+                if (board[index][2] === checkType){
+                    if (checkType === 'terrain'){
+                        coords.push(index)
+                        if (terrainRes.indexOf())
+                        terrainRes.push(coords)
+                    }
+                }
+            }
+        }
+    return counter = 0;
+}  
 
-        arrayReturn = coordCheck(coord, 'soldierStart', 'horizontal');
-        
+
+//Check whether PLACING soldier is valid.
+function validateSoldier(bCoord, checkType){
+    if (checkType === 'soldierStart'){
+        arrayReturn = coordCheck(bCoord, 'horizontal');
     }
 
     if (checkType === 'soldierAdd'){
-        arrayReturn = coordCheck(coord, 'soldierAdd', 'cross');
+        arrayReturn = coordCheck(bCoord, 'cross');
     }
 
     if (checkType === 'resourceGathering'){
-        arrayReturn = coordCheck(coord, 'resourceGathering','surround')
+        arrayReturn = coordCheck(bCoord, 'surround')
     }
     
     if(checkType === 'soldierCheck'){
-        arrayReturn = coordCheck(coord, 'soldierCheck', 'surround')
+        arrayReturn = coordCheck(bCoord, 'surround')
     }
 
     for (let bYX of arrayReturn){
             let bcoord= board[findIndex(bYX)];
 
             if (findIndex(bYX) >= 0){
+                
                 if(bcoord[2] === `base gate ${playerTurn}` && checkType === 'soldierStart'){
                     return true;
                 }
@@ -410,25 +431,11 @@ function validSoldier(coord, checkType){
                     return true;
                 }
 
-                if (bcoord[2] === 'terrain' && checkType === 'resourceGathering'){
-                    
-                    if (bcoord[3] < 1){
-                        terrainRes.push([bcoord[0],bcoord[1]])
-                    }
-                    bcoord[3] = 1;
-                }
-                if (bcoord[2] === `soldier ${playerTurn}` && checkType === 'soldierCheck'){
-                    console.log('hit')
-                    if (playerTurn === `p1`){
-                        p1soldierArray.push([bcoord[0],bcoord[1]])
-                    }
-                    if (playerTurn === `p2`){
-                        p1soldierArray.push([bcoord[0],bcoord[1]])
-                    }
-                }
             }
     }
 }
+
+
 //Checks to see if at least three soldiers are connected to it, if so remove from map
 function resourceCheck(){
     const removalArray = [];
