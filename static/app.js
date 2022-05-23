@@ -12,6 +12,7 @@ const terrainRes = [];
 const p1resourceBCoords = [];
 const p2resourceBCoords =[];
 let playerTurn = 'p1';
+let opposite = 'p2'
 let turnPoints = 20;
 let totalPoints = 10;
 let round = 0;
@@ -47,16 +48,37 @@ setInterval(function(){
 }, 1000)
 
 class Player{
-    constructor(name, shape, resources, soldierCount){
+    constructor(name, shape, resources, soldierCount, soldierArray){
         this.name = name;
         this.shape = shape;
         this.resources = resources;
         this.soldierCount = soldierCount;
+        this.soldierArray = soldierArray
     }
     
     
 }
+p1 = new Player('p1', 'square', 0, 0, []);
+p2 = new Player('p2', 'square', 0, 0, []);
 
+
+function enemy(player){
+    let enemy = 'p2'
+    if (player === 'p2'){
+        enemy = 'p1';
+    }
+    return enemy;
+}
+
+function arrayCompare(array1, array2){
+    index = array1[2];
+    for (element of array2){
+        console.log(element[2], index)
+        if (element[2] === index){
+            return true;
+        }
+    }
+}
 class Terrain{
     constructor(name){
         this.name = name
@@ -143,6 +165,7 @@ function updateBoard(bCoord, status){
 
 function updateMap(bCoord, style){
     const $coordId = findHtmlId(bCoord);
+
     $coordId.attr('class', style);
 }
 
@@ -209,6 +232,7 @@ function getCell(x, mapType, player){
     if (x === 4){
         structure = 'terrain'
         type = 'terrain'
+        img = 'static/images/forestterrain.png'
     }
 
     for (bCoord of mapType){
@@ -218,6 +242,13 @@ function getCell(x, mapType, player){
             if(validCheck(cellArray, type)){
         cell.setAttribute('type', type);
         cell.setAttribute('class', structure);
+        if (structure ==='terrain'){
+        const img = $("<img>");
+        imgUrl = "static/images/forestterrain.png";
+        img.attr('src', imgUrl)
+        img.appendTo(cell);}
+
+
         updateBoard(bCoord,structure)}
         }
     }
@@ -294,7 +325,7 @@ function validCheck(coordinate, type){
 
 
 //placing soldiers TO REVISE: scale down redundant code.
-function createSoldier(evt,bCoord){
+function createSoldier(evt ,bCoord){
     let bool = 0;
     if (board[findIndex(bCoord)][2] === 'empty'){
         if (p1SoldierCount === 0 && playerTurn === 'p1'){
@@ -329,8 +360,10 @@ function createSoldier(evt,bCoord){
         if (validateSoldier(bCoord, 'checkSoldier', 'surround')){}
         updateBoard(bCoord, `soldier ${playerTurn}`)
         turnPoints --;
+
         const img = $("<img>");
-        const imgUrl = "static/images/square.png";
+        if (playerTurn === 'p1'){imgUrl = "static/images/square1.png";}
+        else{imgUrl = 'static/images/circle1.png'}
         img.attr('src', imgUrl)
         img.appendTo(evt.target);
         bool = 0;
@@ -390,8 +423,9 @@ function returnNumber(bCoord, checkStyle, checkType, desireReturn){
                 if (board[index][2] === checkType){
                     if (checkType === 'terrain'){
                         coords.push(index)
-                        if (terrainRes.indexOf())
-                        terrainRes.push(coords)
+                        if (!arrayCompare(coords, terrainRes)){
+                            terrainRes.push(coords)}
+                        
                     }
                 }
             }
@@ -419,15 +453,23 @@ function validateSoldier(bCoord, checkType){
     }
 
     for (let bYX of arrayReturn){
-            let bcoord= board[findIndex(bYX)];
+            let checkCoord= board[findIndex(bYX)];
 
             if (findIndex(bYX) >= 0){
                 
-                if(bcoord[2] === `base gate ${playerTurn}` && checkType === 'soldierStart'){
+                if(checkCoord[2] === `base gate ${playerTurn}` && checkType === 'soldierStart'){
+                    if (playerTurn === 'p1'){
+                        p1soldierArray.push(bCoord)
+                    }else{p2soldierArray.push(bCoord)}
                     return true;
+
+                    
                 }
             
-                if(bcoord[2] === `soldier ${playerTurn}` && checkType === 'soldierAdd'){
+                if(checkCoord[2] === `soldier ${playerTurn}` && checkType === 'soldierAdd'){
+                    if (playerTurn === 'p1'){
+                        p1soldierArray.push(bCoord)
+                    }else{p2soldierArray.push(bCoord)}
                     return true;
                 }
 
@@ -440,7 +482,7 @@ function validateSoldier(bCoord, checkType){
 function resourceCheck(){
     const removalArray = [];
    for (terrainCoords of terrainRes){
-        let checker = coordCheck(terrainCoords, 'resourceGathering', 'surround');
+        let checker = coordCheck(terrainCoords, 'surround');
         let counter =0;
         
         for (let bCoord of checker){
@@ -448,19 +490,18 @@ function resourceCheck(){
            if (soldierCheck === `soldier ${playerTurn}`){
                counter ++;
            }
-           if (counter >= 3){
-            
+           if (counter === 3){
             updateMap(terrainCoords, 'empty')
             removeStatus(terrainCoords);
-            counter =0;
             removalArray.push(terrainCoords);
             if (playerTurn === 'p1'){
                 p1Resources ++;
+            }else{p2Resources ++}
+            break;
             }
-            else{p2Resources ++;}
+           
            }
            
-        }
         }
     for (let removal of removalArray){
         const index = terrainRes.indexOf(removal)
@@ -474,28 +515,29 @@ function soldierCheck(){
     const removalArray = [];
     let playerArray = [];
     if (playerTurn === 'p1'){
-        playerArray = p1soldierArray;
-    } else {    playerArray = p2soldierArray;}
+        playerArray = p2soldierArray;
+        console.log(1, playerArray);
+    } else {playerArray = p1soldierArray;
+            console.log(2, playerArray)}
     
     for (soldierCoords of playerArray){
-        let checker = coordCheck(terrainCoords, 'soldierCheck', 'surround')
+        let checker = coordCheck(soldierCoords, 'surround')
         let counter =0;
         
         for (let bCoord of checker){
            let soldierCheck = board[findIndex(bCoord)][2];
-           if (soldierCheck === `soldier ${playerTurn}`){
+           if (soldierCheck === `soldier ${enemy(opposite)}`){
                counter ++;
            }
-           if (counter >= 3){
-            
+           if (counter >= 2){
             updateMap(soldierCoords, 'empty')
             removeStatus(soldierCoords);
             counter =0;
             removalArray.push(soldierCoords);
             if (playerTurn === 'p1'){
-                p1Soldiers --;
+                p2SoldierCount --;
             }
-            else{p1Soldiers --;}
+            else{p1SoldierCount --;}
            }
            
         }
@@ -504,8 +546,8 @@ function soldierCheck(){
         const index = playerArray.indexOf(removal)
         playerArray.splice(index, 1);
         if (playerTurn === 'p1'){
-            p1soldierArray = playerArray;
-        }else{p2soldierArray = playerArray}
+            p2soldierArray = playerArray;
+        }else{p1soldierArray = playerArray}
     }
 }
 
@@ -516,6 +558,7 @@ function removeStatus(bCoord){
     mCoord.removeAttr('class');
     mCoord.removeAttr('type');
     mCoord.attr('class', 'empty')
+    mCoord.empty();
 }
 
 
@@ -523,9 +566,11 @@ function removeStatus(bCoord){
 function changeTurn(){
     if (playerTurn === 'p1'){
         playerTurn = 'p2';
+        opposite = 'p1'
     }
     else{
         playerTurn = 'p1';
+        opposite = 'p2'
         round += 1
     }
     turnPoints = 10;
@@ -540,7 +585,8 @@ function updateHtmlColumn(){
 
     }
     $('#turnHtml').html(`PLAYER ${playerTurn} Turn`);
-   
+    $('#p1res').html(`P1 Resources: ${p1Resources}`);
+    $('#p2res').html(`P2 Resources: ${p2Resources}`);
     $('#round').html(`Round: ${round}`);
 }
 
@@ -551,6 +597,7 @@ drawBaseHtml(P1BASE, P2BASE);
 createTerrain();
 
 
+
 $("#map").on("click", "td", function(evt){
         cY = parseInt(evt.target.getAttribute('y'));
         cX = parseInt(evt.target.getAttribute('x'));
@@ -559,6 +606,8 @@ $("#map").on("click", "td", function(evt){
         if(turnPoints > 0){
             createSoldier(evt, cYX);}
         $('#turnPoints').html(`Turn Points: ${turnPoints}/${totalPoints}`);
+        $('#p1sold').html(`P1 Soldiers: ${p1SoldierCount}`);
+        $('#p2sold').html(`P2 Soldiers: ${p2SoldierCount}`);
 })
 
 $('#finalize').on('click', function(){

@@ -36,12 +36,11 @@ body {
     background-color: grey;
 }
 
-.terrain {
-    background-color: black;
-}
-
 .soldier{
     padding: 0;
+}
+.terrain{
+    padding: 0px;
 }
 
 /* .P1{
