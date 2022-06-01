@@ -33,7 +33,7 @@ body {
 }
 
 .base {
-    background-color: grey;
+    padding: 0;
 }
 
 .soldier{
@@ -65,3 +65,7 @@ img {
 .right {
     width: 75%;
   }
+
+ol {
+    color: white;
+}
