@@ -3,32 +3,29 @@
 //the BOARD is referencing the BOARD variable which keeps track of the cells 'memory'  [[0,1, 'empty'],[0,2, 'base']]
 //the map is in reference to what the user sees on the front end.
 //bcoord refers to array/BOARD coordinate [y,x] mcoord refers to map coordinate 'y - x'
-
-let ROUND = 0;
-let TIMER = 15;
-let TURNPHASE = 0;
+const newState = new gameState(7);
 
 //TIMER function
 setInterval(function(){
-    if (ROUND === 0 && TURNPHASE === 0){
-        $('#phase').html('Phase: Scouting')
-        TURNPHASE ++;
-        ROUND ++;
+    if (newState.round === 0 && newState.turnPhase === 0){
+        $('#phase').html('Scouting')
+        newState.turnPhase = 1;
+        newState.round ++;
     }
 
-    if (TURNPHASE === 0 && TIMER === 0){
-        TURNPHASE = 1;
-        TIMER = 7;
-        $('#phase').html('Phase: Recap')
+    if (newState.turnPhase === 1 && newState.timer === 0){
+        newState.turnPhase = 2;
+        newState.timer = 33;
+        $('#phase').html('Deployment');
     }
-    if (TURNPHASE === 1 && TIMER === 0){
-        TURNPHASE = 0;
-        TIMER = 63;
-        $('#phase').html('Phase: Deployment')
+    if (newState.turnPhase === 2 && newState.timer === 0){
+        newState.turnPhase = 1;
+        newState.timer = 7;
+        $('#phase').html('Recap');
     }
-    if (TIMER > 0){
-        TIMER --;
-        $('#timer').html(`Timer: ${TIMER}`);
+    if (newState.timer > 0){
+        newState.timer --;
+        $('#timer').html(`Timer: ${newState.timer}`);
     }
 }, 1000)
 
@@ -44,7 +41,6 @@ const pTurn = function(){
 //placing soldiers TO REVISE: scale down redundant code.
 function createSoldier(evt , bCoord){
     let bool = 0;
-    
     if (BOARD[findIndex(bCoord)][3] === 'empty'){
         if (validateSoldier(bCoord, 'soldierStart')){
                 bool = 1;
@@ -52,7 +48,6 @@ function createSoldier(evt , bCoord){
         if (pTurn().soldierCount > 0 && bool === 0){
             if (validateSoldier(bCoord, 'soldierAdd')){
             bool = 1;
-            
             }
         }
     
@@ -60,8 +55,8 @@ function createSoldier(evt , bCoord){
         pTurn().soldierCount ++;
         updateMap(bCoord, pTurn().soldierCall);
         //gathering resources
-        if (returnNumber(bCoord, 'surROUND', 'terrain', 'array')){}
-        if (validateSoldier(bCoord, 'checkSoldier', 'surROUND')){}
+        if (returnNumber(bCoord, 'surround', 'terrain', 'array')){}
+        if (validateSoldier(bCoord, 'checkSoldier', 'surround')){}
         updateBOARD(bCoord, pTurn());
         
         pTurn().turnPoints --;
@@ -69,7 +64,8 @@ function createSoldier(evt , bCoord){
         
         bool = 0;
     }
-    }  
+    } 
+    //TO IMPLIMENT redoing moves from same turn.
     // if (BOARD[findIndex(bCoord)][3] === pTurn() && arrayCompare(bCoord, tempSoldierArray)){
     //     removeStatus(bCoord);
     //     turnPoints ++;
@@ -109,9 +105,9 @@ function coordCheck(coordinate, checkStyle){
     if (checkStyle === 'horizontal'){
         arrayCopy = horizontal;
     }
-    const surROUND = [downi,upi,lefti,righti,diagUpiLeftx, diagUpiRightx, diagDowniLeftx, diagDowniRightx];
-    if (checkStyle === 'surROUND'){
-        arrayCopy = surROUND
+    const surround = [downi,upi,lefti,righti,diagUpiLeftx, diagUpiRightx, diagDowniLeftx, diagDowniRightx];
+    if (checkStyle === 'surround'){
+        arrayCopy = surround
     }
     for (element of arrayCopy){
         if (element[0] >= 0 && element[0] < HEIGHT && element[1] < WIDTH && element[1] >= 0){
@@ -122,7 +118,7 @@ function coordCheck(coordinate, checkStyle){
     return checkArray;
 }
 
-//return the number of times something is configured next to other coordinates.
+//return the number of times something is surrounded next to other coordinates.
 function returnNumber(bCoord, checkStyle, checkType, desireReturn){
     coordChecker = coordCheck(bCoord, checkStyle);
     counter = 0;
@@ -159,16 +155,16 @@ function validateSoldier(bCoord, checkType){
     }
 
     if (checkType === 'resourceGathering'){
-        arrayReturn = coordCheck(bCoord, 'surROUND')
+        arrayReturn = coordCheck(bCoord, 'surround')
     }
     
     if(checkType === 'soldierCheck'){
-        arrayReturn = coordCheck(bCoord, 'surROUND')
+        arrayReturn = coordCheck(bCoord, 'surround')
     }
 
     for (let bYX of arrayReturn){
             let checkCoord= BOARD[findIndex(bYX)];
-            // Start of putting disconnected soldiers back into validpath after reconnecting them in turn.
+            // TO IMPLIMENT putting disconnected soldiers back into validpath after reconnecting them in turn.
             // if (checkCoord[3] === pTurn()){
             //     soldierPath();
             // }
@@ -201,7 +197,7 @@ function validateSoldier(bCoord, checkType){
 function resourceCheck(){
     const removalArray = [];
    for (terrainCoords of terrainRes){
-        let checker = coordCheck(terrainCoords, 'surROUND');
+        let checker = coordCheck(terrainCoords, 'surround');
         let counter =0;
         
         for (let bCoord of checker){
@@ -296,7 +292,7 @@ function changeTurn(){
 
 }
 
-//updates the right column after 'finalize' button is pressed.
+//creates column with all current players.
 function createHtmlColumn(){
     const $htmlColumn = $('#info');
     for (player of PLAYERARRAY){
@@ -310,7 +306,7 @@ function createHtmlColumn(){
         $htmlColumn.append($h4b);
     }
 }
-
+//updates the right column after 'finalize' button is pressed.
 function updateHtmlColumn(){
     $('#turnHtml').html(`${pTurn().name} Turn`);
     $(`#turnPoints`).html(`Turn points: ${pTurn().turnPoints}`)
@@ -318,7 +314,7 @@ function updateHtmlColumn(){
     $(`#${player.name}sold`).html(`${player.name} soldiers: ${player.soldierCount}`);
     $(`#${player.name}res`).html(`${player.name} resources: ${player.resourceCount}`);
     
-    $('#ROUND').html(`ROUND: ${ROUND}`);}
+    $('#round').html(`Round ${newState.round}`);}
 }
 
 
@@ -328,24 +324,47 @@ function updateHtmlColumn(){
 
 createHtmlColumn();
 
+//update options button
+$(".dropdown-menu").on("click", function(evt){
+    evt.preventDefault()
+    $('#dropdownMenuButton').html($(evt.target).html())
+})
+
+$('.navbar').on('click', function(evt){
+    evt.preventDefault()
+
+    if ($(evt.target).html() === 'Map'){
+        $('#mapPage').show()
+        $('#settings').hide()
+    }
+    if ($(evt.target).html() === 'Settings'){
+        $('#mapPage').hide()
+        $('#settings').show()
+    }
+})
+
 
 $("#map").on("click", "td", function(evt){
         cY = parseInt(evt.target.getAttribute('y'));
         cX = parseInt(evt.target.getAttribute('x'));
         cYX = [cY, cX];
+        if(pTurn().turnPoints > 0 && $('#dropdownMenuButton').html() === 'Deploy'){
+            createSoldier(evt, cYX);
+        }
 
-        if(pTurn().turnPoints > 0){
-            createSoldier(evt, cYX);}
+
+
         $('#turnPoints').html(`Turn Points: ${pTurn().turnPoints}/15`);
         $(`#${pTurn().name}sold`).html(`${pTurn().name} soldiers: ${pTurn().soldierCount}`);
 })
 
-$('#finalize').on('click', function(){
+$('.finalize').on('click', function(evt){
+    
     //TO IMPLEMENT: Warning if player has not used all move points
+    $('#dropdownMenuButton').html('Deploy');
     resourceCheck();
     soldierCheck();
-    
-
     changeTurn();
-    updateHtmlColumn();
-})
+    updateHtmlColumn();}
+        
+    )

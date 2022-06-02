@@ -5,14 +5,6 @@
 //bcoord refers to array/BOARD coordinate [y,x] mcoord refers to map coordinate 'y - x'
 
 
-//Keeps track of not main players turn.
-function enemy(player){
-    let enemy = 'p2'
-    if (player === 'p2'){
-        enemy = 'p1';
-    }
-    return enemy;
-}
 
 //Compare [] -> [[],[]] to see if 1 is in other. Due to formula of index only need to compare index's to know if true.
 function arrayCompare(array1, array2, checkStyle){
@@ -49,16 +41,24 @@ function findHtmlId(bCoord){
 //Keeps BOARD updated on map state.
 function updateBOARD(bCoord, status){
     let index = findIndex(bCoord);
-    let counter = 0;
     BOARD[index].pop();
+    
     BOARD[index].push(status);
+    return true;
 }
 
 //gives cells class
 function updateMap(bCoord, style){
     const $coordId = findHtmlId(bCoord);
     $coordId.attr('class', style);
-    imgMap($coordId)
+    imgMap($coordId);
+    return true;
+}
+
+//update both map and board
+function updateBoth(bCoord, style){
+    updateBOARD(bCoord, style);
+    updateMap(bCoord, style);
 }
 
 
@@ -70,6 +70,9 @@ function imgMap($mCoord){
     }
     if ($mCoord.hasClass('soldier p2')){
         imgUrl = "static/images/circle1.png";
+    }
+    if ($mCoord.hasClass('terrain')){
+        imgUrl = "static/images/forestterrain.png"
     }
     img.attr('src', imgUrl);
     img.appendTo($mCoord);

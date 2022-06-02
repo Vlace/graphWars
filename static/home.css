@@ -30,6 +30,7 @@ td:nth-of-type(5n + 0) {
 
 body {
     background-color: black;
+    margin-left: 20px;
 }
 
 .base {
@@ -59,11 +60,11 @@ img {
   }
   
 .left {
-    width: 25%;
+    width: 75%;
   }
   
 .right {
-    width: 75%;
+    width: 20%;
   }
 
 ol {

@@ -66,28 +66,36 @@ function drawBaseHtml(base, base2) {
 //creating the terrain, 
 // TO IMPLIMENT: checks to make sure paths still exist between bases
 function createTerrain(){
+    indexArray = [];
     // terrain quantity
     const terrainQuantity = (randomNum(6)+5)*9;
     //terrain coordinates for CSS
     const terrainSet = [];
     
-        for(let i=0; i<=terrainQuantity; i++){
-            //indiv terrain size
-            const terrainY = randomNum(3)+2;
-            const terrainX = randomNum(HEIGHT/5);
-            //terrain origin point
-            const originY = randomNum(HEIGHT-10) + 1;
-            const originX = randomNum(WIDTH - 10) + 1;
+    for(let i=0; i<=terrainQuantity; i++){
+        //indiv terrain size
+        const terrainY = randomNum(3)+2;
+        const terrainX = randomNum(HEIGHT/5);
+        //terrain origin point
+        const originY = randomNum(HEIGHT-10) + 1;
+        const originX = randomNum(WIDTH - 10) + 1;
                 
                 
-            for(let ycoord = 0; ycoord <= terrainY; ycoord++){
+        for(let ycoord = 0; ycoord <= terrainY; ycoord++){
 
-                for (let j = 0; j <= terrainX; j++){
-                        terrainSet.push([originY + ycoord, originX +j]);
-                    }}
+            for (let j = 0; j <= terrainX; j++){
+                let index = findIndex([originY + ycoord, originX + j]);
+                    if(validCheck([originY + ycoord, originX + j], 'terrain')){
+                        if (!indexArray.includes(index)){
+                        terrainSet.push();
+                        indexArray.push(index);
+                        updateBoth([originY + ycoord, originX +j], 'terrain');
+                    }
+                }
+            }
         }
-
-    getCell(4, terrainSet, 'p');
+    }
+    // getCell(4, terrainSet, 'p');
 }
 
 //checks to see if coordinates are valid before adding new class/terrain/soldiers. Checks MAP.
@@ -122,9 +130,10 @@ function validCheck(coordinate, type){
     }
 }
 //TODO format this differently to account for when game is two-four players.
+makeHtmlMap();
 const P1BASE = makeHtmlBase(p1);
 const P2BASE = makeHtmlBase(p2);
-makeHtmlMap();
+
 drawBaseHtml(P1BASE, P2BASE);
 createTerrain();
 

@@ -16,6 +16,16 @@ class Player{
     }
 }
 
+class gameState{
+    constructor(timer){
+        this.round = 0;
+        this.timer = timer;
+        this.turnPhase = 0;
+    }
+}
+
+
+
 const p1 = new Player('p1', 0, 'circle1.png', true, 'soldier p1');
 const p2 = new Player('p2', 1, 'square1.png', false, 'soldier p2');
 

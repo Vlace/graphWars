@@ -1,5 +1,5 @@
-const HEIGHT = 25;
-const WIDTH = 25;
+const HEIGHT = 30;
+const WIDTH = 30;
 const BOARD = [];
 const terrainRes = [];
 
@@ -38,9 +38,6 @@ function getCell(x, mapType, player){
     }
     //This statement is for terrain creation.
     if (x === 4){
-        structure = 'terrain'
-        type = 'terrain'
-        img = '../static/images/forestterrain.png'
     }
 
     for (bCoord of mapType){
@@ -65,7 +62,6 @@ function getCell(x, mapType, player){
 
         img.attr('src', imgUrl)
         img.appendTo(cell);
-
         updateBOARD(bCoord,structure)}}
     }
 }
