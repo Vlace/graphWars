@@ -2,10 +2,10 @@
 function makeHtmlMap() {
     const htmlMap = document.querySelector('#map');
 
-    for (let y = 0; y < HEIGHT; y++) {
+    for (let y = 0; y < newBoard.height; y++) {
         const row = document.createElement('tr');
         
-        for (let x = 0; x < WIDTH; x++){
+        for (let x = 0; x < newBoard.width; x++){
             const cell = document.createElement('td');
             cell.setAttribute('id', `${y}-${x}`);
             cell.setAttribute('class', 'empty');
@@ -22,44 +22,124 @@ function makeHtmlMap() {
 }
 
 //Creating the bases of the teams
-function makeHtmlBase(player) {
-    let x = randomNum(WIDTH);
+function makeHtmlBase() {
     
-    //Making sure when drawing base it is not off table
-    if (x > WIDTH - 8){
-        x = WIDTH - 8;
+    
+    const a = {id: 'a'};
+    const b = {id: 'b'};
+    const c = {id: 'c'};
+    const d = {id: 'd'};
+
+    let random = randomNum(2);
+    let random2= randomNum(2);
+    let setup = [[a, b], [c, d]];
+    let setup3 = [];
+    
+    if (PLAYERARRAY.length === 2){
+        setup3 = (setup[random-1]);
     }
-    if(x < 3){
-        x = 2
+    else if (PLAYERARRAY.length === 3){
+        setup3 = setup[random -1];
+        if (random === 2){
+            setup2 = setup[0][random2 -1];
+            setup3.push(setup2);
+        }
+        else {
+            setup2 = setup[1][random2 -1];
+            setup3.push(setup2);
+        }
     }
-    //checking to see which side of map to draw on. Due to way map is configured, hard code is nesc.
-    if (player === p1){
-        let y = 0;
-        let bottom = [[y,x+1],[y,x+2],[y,x+3],[y,x+4]];
-        let side = [[y+1,x],[y+2,x],[y+1,x+5],[y+2,x+5]];
-        let corner = [[y,x],[y,x+5],[y+3,x],[y+3,x+5]];
-        let gate = [[y+3,x+1],[y+3,x+4]];
-        let base = [bottom, side, corner, gate, p1];
-        return base;
+    else {
+        setup3 = setup[0];
+        setup3.push(setup[1][0], setup[1][1]);
     }
-    else{
-        let y = HEIGHT - 1;
-        let bottom = [[y,x+1],[y,x+2],[y,x+3],[y,x+4]];
-        let side = [[y-1,x],[y-2,x],[y-1,x+5],[y-2,x+5]];
-        let corner = [[y,x],[y,x+5],[y-3,x],[y-3,x+5]];
-        let gate = [[y-3,x+1],[y-3,x+4]];
-        let base = [bottom, side, corner, gate, p2];
-        return base;
-    } 
+    const finalSetup = [];
+    let counter = 0;
+    for (player of PLAYERARRAY){
+        
+        //'Randomizes' starting side of bases.
+        //TO IMPLIMENT better random system for more randomness.
+        
+        //Makes sure x and y coord aren't to close to edge
+        let x = randomNum(newBoard.width);
+        let md = 0;
+
+        if (newBoard.size === 'sm'){
+            md = 3
+        }
+        if (newBoard.size === 'med'){
+
+        }
+        if (x > newBoard.width - (20-md)){
+            x = newBoard.width - (20-md);
+        }
+        if(x < (10-md)){
+            x = (10-md);
+        }
+        let y = randomNum(newBoard.height);
+        if (y > newBoard.height - (15-md)){
+            y = newBoard.height - (15-md)
+        }
+        if (y < (15-md)){
+            y = (15-md);
+        }
+        if (setup3[counter].id === 'a'){
+            let y = 0;
+            a.bottom = [[y,x+1],[y,x+2],[y,x+3],[y,x+4]];
+            a.side = [[y+1,x],[y+2,x],[y+1,x+5],[y+2,x+5]];
+            a.corner = [[y,x],[y,x+5],[y+3,x],[y+3,x+5]];
+            a.gate = [[y+3,x+1],[y+3,x+4]];
+            a.player = player;
+            a.base = [a.bottom, a.side, a.corner, a.gate];
+            finalSetup.push(a);
+        }
+        if (setup3[counter].id === 'b'){
+            let y = newBoard.height-1;
+            b.bottom = [[y,x+1],[y,x+2],[y,x+3],[y,x+4]];
+            b.side = [[y-1,x],[y-2,x],[y-1,x+5],[y-2,x+5]];
+            b.corner = [[y,x],[y,x+5],[y-3,x],[y-3,x+5]];
+            b.gate = [[y-3,x+1],[y-3,x+4]];
+            b.player = player;
+            b.base = [b.bottom, b.side, b.corner, b.gate];
+            finalSetup.push(b);
+        }
+        if (setup3[counter].id === 'c'){
+            let x = 0;
+            c.bottom = [[y+1, x],[y+2, x],[y+3, x],[y+4, x]];
+            c.side = [[y, x+1],[y, x+2],[y+5, x+1],[y+5, x+2]];
+            c.corner = [[y, x],[y+5, x],[y, x+3],[y+5, x+3]];
+            c.gate = [[y+1, x+3],[y+4, x+3]];
+            c.player = player;
+            c.base = [c.bottom, c.side, c.corner, c.gate];
+            finalSetup.push(c);
+        }
+        if (setup3[counter].id === 'd'){
+            let x = newBoard.width-1;
+            d.bottom = [[y+1, x],[y+2, x],[y+3, x],[y+4, x]];
+            d.side = [[y, x-1],[y, x-2],[y+5, x-1],[y+5, x-2]];
+            d.corner = [[y, x],[y+5, x],[y, x-3],[y+5, x-3]];
+            d.gate = [[y+1, x-3],[y+4, x-3]];
+            d.player = player;
+            d.base = [d.bottom, d.side, d.corner, d.gate];
+            finalSetup.push(d);
+        }
+        player.base = setup3[counter];
+        counter ++;
+    }
+    
+    return finalSetup;
+    
 }
 
 //creating the base
-function drawBaseHtml(base, base2) {
-    for (x=0; x <= 3; x++){
-        getCell(x, base[x], base[4]);
-    }
-    for (x=0; x <= 3; x++){
-        getCell(x, base2[x], base2[4]);
+function drawBaseHtml() {
+    const makeBase = makeHtmlBase();
+
+
+    for (base of makeBase){
+     for (x=0; x <= 3; x++){
+         getCell(x, base.base[x], base.player)
+     }
     }
 }
 
@@ -68,17 +148,17 @@ function drawBaseHtml(base, base2) {
 function createTerrain(){
     indexArray = [];
     // terrain quantity
-    const terrainQuantity = (randomNum(6)+5)*9;
+    const terrainQuantity = (randomNum(6)+5)*5;
     //terrain coordinates for CSS
     const terrainSet = [];
     
     for(let i=0; i<=terrainQuantity; i++){
         //indiv terrain size
         const terrainY = randomNum(3)+2;
-        const terrainX = randomNum(HEIGHT/5);
+        const terrainX = randomNum(newBoard.height/5);
         //terrain origin point
-        const originY = randomNum(HEIGHT-10) + 1;
-        const originX = randomNum(WIDTH - 10) + 1;
+        const originY = randomNum(newBoard.height-6) + 1;
+        const originX = randomNum(newBoard.width - 6) + 1;
                 
                 
         for(let ycoord = 0; ycoord <= terrainY; ycoord++){
@@ -98,9 +178,35 @@ function createTerrain(){
     // getCell(4, terrainSet, 'p');
 }
 
+//find the Html mCoord, jQuery
+function findHtmlId(bCoord){
+    return $(`#${bCoord[0]}-${bCoord[1]}`);
+}
+
+//gives cells class
+function updateMap(bCoord, style){
+    const $coordId = findHtmlId(bCoord);
+    $coordId.attr('class', style);
+    imgMap($coordId);
+    return true;
+}
+
+//give mcoord class and image, jQuery
+function imgMap($mCoord){
+    const img = $("<img>");
+    if(pTurn()){
+    imgUrl = `static/images/${pTurn().shape}`}
+    
+    if ($mCoord.hasClass('terrain')){
+        imgUrl = "static/images/forestterrain.png"
+    }
+    img.attr('src', imgUrl);
+    img.appendTo($mCoord);
+}
+
 //checks to see if coordinates are valid before adding new class/terrain/soldiers. Checks MAP.
 function validCheck(coordinate, type){
-    const indexFinder = coordinate[0]*HEIGHT + coordinate[1]
+    const indexFinder = findIndex(coordinate);
     if (type === "terrain"){
         for(let i = 1; i <= 2; i++){
             if(
@@ -120,9 +226,12 @@ function validCheck(coordinate, type){
             ){
                 return false;
             }
-    }}
-    
-    if(BOARD[indexFinder][3] === 'empty'){
+        }
+    }
+    if (newBoard.board[indexFinder] === undefined){
+        return false;
+    }
+    if(newBoard.board[indexFinder][3] === 'empty'){
         return true;
     }
     else{
@@ -130,11 +239,6 @@ function validCheck(coordinate, type){
     }
 }
 //TODO format this differently to account for when game is two-four players.
-makeHtmlMap();
-const P1BASE = makeHtmlBase(p1);
-const P2BASE = makeHtmlBase(p2);
 
-drawBaseHtml(P1BASE, P2BASE);
-createTerrain();
 
 

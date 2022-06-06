@@ -1,9 +1,9 @@
 const PLAYERARRAY = [];
 
 class Player{
-    constructor(name, number, shape, playerTurn, soldierCall){
+    constructor(name, shape, playerTurn, soldierCall, url){
     this.name = name;
-    this.number = number;
+    this.number = PLAYERARRAY.length;
     this.shape = shape;
     this.soldierCount = 0;
     this.resourceCount = 0;
@@ -13,6 +13,7 @@ class Player{
     this.turnPoints = 15;
     this.soldierPrime = [];
     this.validPath = [];
+    this.baseImg = url
     }
 }
 
@@ -21,16 +22,50 @@ class gameState{
         this.round = 0;
         this.timer = timer;
         this.turnPhase = 0;
+        this.started = false;
     }
 }
 
+class gameBoard{
+    constructor(){
+        this.board = [];
+        this.terrainRes = [];
+
+    }
+    makeBoard = function(sizing){
+        if (sizing[0] === 'Small'){
+            newBoard.height = 25;
+            newBoard.width = 35;
+            newBoard.size = 'sm'
+        }
+
+        if (sizing[0] === 'Medium'){
+            newBoard.height = 30;
+            newBoard.width = 45;
+            newBoard.size = 'med'
+        }
+        if (sizing[0] ==='Large'){
+            newBoard.height = 40;
+            newBoard.width = 60;
+            newBoard.size = 'lg'
+        }
 
 
-const p1 = new Player('p1', 0, 'circle1.png', true, 'soldier p1');
-const p2 = new Player('p2', 1, 'square1.png', false, 'soldier p2');
+       for (let y = 0; y < this.height; y++){
+            for(let x=0; x < this.width; x++){
+                let coord = [];
+                coord = [y, x, findIndex([y,x]),'empty'];
+                this.board.push(coord); 
+            }
+    
+        }
+    }
+    updateBoard = function(bCoord, status){
+        let index = findIndex(bCoord);
+        this.board[index].pop();
+        this.board[index].push(status);
+        return true;
+    }
+}
 
-PLAYERARRAY.push(p1, p2);
-
-
-
-
+const newBoard = new gameBoard();

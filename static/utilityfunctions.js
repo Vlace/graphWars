@@ -26,62 +26,32 @@ function randomNum(x) {
 
 //Finding cell easily in BOARD, handy function throughout app, reduces some tedious code.
 function findIndex(bCoord){
-    index = bCoord[0] * HEIGHT + bCoord[1];
-    indexTotal = (HEIGHT) * (WIDTH)
+    index = bCoord[0] * newBoard.width + bCoord[1];
+    indexTotal = (newBoard.height) * (newBoard.width);
     if (index <= indexTotal && index >= 0){
         return index;
     }
 }
 
-//find the Html mCoord, jQuery
-function findHtmlId(bCoord){
-    return $(`#${bCoord[0]}-${bCoord[1]}`);
-}
 
-//Keeps BOARD updated on map state.
-function updateBOARD(bCoord, status){
-    let index = findIndex(bCoord);
-    BOARD[index].pop();
-    
-    BOARD[index].push(status);
-    return true;
-}
 
-//gives cells class
-function updateMap(bCoord, style){
-    const $coordId = findHtmlId(bCoord);
-    $coordId.attr('class', style);
-    imgMap($coordId);
-    return true;
-}
+
+
+
 
 //update both map and board
 function updateBoth(bCoord, style){
-    updateBOARD(bCoord, style);
+    newBoard.updateBoard(bCoord, style);
     updateMap(bCoord, style);
 }
 
 
-//give mcoord class and image, jQuery
-function imgMap($mCoord){
-    const img = $("<img>");
-    if ($mCoord.hasClass('soldier p1')){
-        imgUrl = "static/images/square1.png";
-    }
-    if ($mCoord.hasClass('soldier p2')){
-        imgUrl = "static/images/circle1.png";
-    }
-    if ($mCoord.hasClass('terrain')){
-        imgUrl = "static/images/forestterrain.png"
-    }
-    img.attr('src', imgUrl);
-    img.appendTo($mCoord);
-}
+
 
 //removes mcoord class and img, given bCoord
 function removeStatus(bCoord){
-    BOARD[findIndex(bCoord)].pop();
-    BOARD[findIndex(bCoord)][3] = 'empty';
+    newBoard.board[findIndex(bCoord)].pop();
+    newBoard.board[findIndex(bCoord)][3] = 'empty';
     let mCoord = findHtmlId(bCoord);
     mCoord.removeAttr('class');
     mCoord.removeAttr('type');
@@ -105,7 +75,7 @@ function returnStyle(bCoord, checkStyle, style){
     const returnArray = [];
     for (element of checkArray){
 
-        const BOARDCoord = BOARD[element[2]];
+        const BOARDCoord = newBoard.board[element[2]];
         if (BOARDCoord[3] === style){
             returnArray.push(element);
         }

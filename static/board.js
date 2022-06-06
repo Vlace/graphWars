@@ -1,19 +1,5 @@
-const HEIGHT = 30;
-const WIDTH = 30;
-const BOARD = [];
-const terrainRes = [];
-
 //Creating the 'behind the scenes' memory for the front end. Refered to as BOARD to separate from HtmlMap BOARD[y,x,status]
-function makeBOARD(){
-    for (let y = 0; y < HEIGHT; y++){
-        for(let x=0; x < WIDTH; x++){
-            coord = [];
-            coord = [y, x, findIndex([y,x]),'empty'];
-            BOARD.push(coord); 
-        }
 
-    }
-}
 
 
 //This function is useful for labeling cells within the HTML Table
@@ -37,8 +23,6 @@ function getCell(x, mapType, player){
         img = '../static/images/gate.png'
     }
     //This statement is for terrain creation.
-    if (x === 4){
-    }
 
     for (bCoord of mapType){
         const cell = document.getElementById(`${bCoord[0]}-${bCoord[1]}`);
@@ -57,14 +41,11 @@ function getCell(x, mapType, player){
         imgUrl = "static/images/forestterrain.png";}
         
         if(type === 'base'){
-        imgUrl = "static/images/base.png";
+        imgUrl = player.baseImg;
         }
 
         img.attr('src', imgUrl)
         img.appendTo(cell);
-        updateBOARD(bCoord,structure)}}
+        newBoard.updateBoard(bCoord,structure)}}
     }
 }
-
-
-makeBOARD();
